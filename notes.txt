@@ -1,0 +1,11 @@
+cli todo app
+
+init features
+    * crud ops
+    * store data in csv
+
+try out:
+    store data in json
+    db (not sure which one yet) sqlite?
+    build a proper exe app
+
