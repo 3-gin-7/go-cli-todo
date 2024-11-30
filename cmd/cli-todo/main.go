@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cli-todo/internal/tools"
 	"flag"
 	"fmt"
 )
@@ -13,4 +14,12 @@ func main() {
 	fmt.Printf("flag value: %v\r\n", *n)
 	flag.Parse()
 	fmt.Printf("flag value: %v\r\n", *n)
+
+	db, err := tools.NewDatabase()
+	if err != nil {
+		fmt.Println("db is null")
+	}
+
+	(*db).AddTodo(tools.Todo{Id: 1, Content: "testing"})
+	(*db).GetListOfTodos()
 }

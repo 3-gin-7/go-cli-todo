@@ -9,3 +9,11 @@ try out:
     db (not sure which one yet) sqlite?
     build a proper exe app
 
+things to check:
+    Cobra - go package for cli apps
+    cli - package
+    viper
+    
+
+file storage first draft:
+    store todos in format as id(int),{json of the todo}
