@@ -1,17 +1,16 @@
 package tools
 
-import "fmt"
-
 type Todo struct {
 	Id      int
 	Content string
+	IsDone  bool
 }
 
 type DatabaseInterface interface {
 	SetupDb() error
 	GetListOfTodos() (map[int]Todo, error)
 	DeleteTodo(id int) error
-	PatchTodo(id int) error
+	ChangeTodoCompleteStatus(id int) error
 	AddTodo(todo Todo) error
 }
 
@@ -24,20 +23,4 @@ func NewDatabase() (*DatabaseInterface, error) {
 	}
 
 	return &db, nil
-}
-
-func AddTodo() {
-	var db DatabaseInterface = &fileDb{}
-
-	db.AddTodo(Todo{Id: 99, Content: "testing one two, three"})
-}
-
-func GetListOfTodos() {
-	var db DatabaseInterface = &fileDb{}
-	todos, err := db.GetListOfTodos()
-	if err != nil {
-		fmt.Println("failed to get todos")
-	}
-
-	fmt.Println(todos[1])
 }

@@ -77,7 +77,8 @@ func (db *fileDb) GetListOfTodos() (map[int]Todo, error) {
 
 func (db *fileDb) DeleteTodo(id int) error {
 	// read all the lines except the one with the id
-	// write them all into the file and update db Index if necessary
+	// write them all into the file
+	var sb strings.Builder
 	fi, err := os.Open(FILE_NAME)
 	if err != nil {
 		return errors.New("failed to open filedb")
@@ -91,18 +92,48 @@ func (db *fileDb) DeleteTodo(id int) error {
 			fmt.Println("failed to parse todo")
 		}
 
-		if t.Id == id {
-			// delete the line and close the file
-			return nil
+		if t.Id != id {
+			sb.WriteString(line + "\r\n")
 		}
 	}
+
+	os.WriteFile(FILE_NAME, []byte(sb.String()), 0644)
 
 	fi.Close()
 	return fmt.Errorf("todo with id:%v not found", id)
 }
 
-func (db *fileDb) PatchTodo(id int) error {
-	return errors.New("not implemented")
+func (db *fileDb) ChangeTodoCompleteStatus(id int) error {
+	// same idea as delete but instead of skipping the line with the correct id, overwrite it
+	var sb strings.Builder
+	fi, err := os.Open(FILE_NAME)
+	if err != nil {
+		return errors.New("failed to open filedb")
+	}
+
+	sc := bufio.NewScanner(fi)
+	for sc.Scan() {
+		line := sc.Text()
+		t, err := convertLineToTodo(line)
+		if err != nil {
+			return errors.New("failed to parse todo")
+		}
+
+		if t.Id == id {
+			t.IsDone = !t.IsDone
+			line, err = convertTodoToString(t)
+			if err != nil {
+				return errors.New("failed to parse the todo, please clear the db")
+			}
+		}
+
+		sb.WriteString(line + "\r\n")
+	}
+
+	os.WriteFile(FILE_NAME, []byte(sb.String()), 0644)
+
+	fi.Close()
+	return fmt.Errorf("todo with id:%v not found", id)
 }
 
 func (db *fileDb) AddTodo(todo Todo) error {
@@ -134,4 +165,12 @@ func convertLineToTodo(line string) (Todo, error) {
 	json.Unmarshal([]byte(todo_string), &todo)
 
 	return todo, nil
+}
+
+func convertTodoToString(todo Todo) (string, error) {
+	j, err := json.Marshal(todo)
+	if err != nil {
+		return "", err
+	}
+	return string(j), nil
 }
